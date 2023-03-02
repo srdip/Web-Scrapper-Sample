@@ -1,0 +1,125 @@
+Code block #1:
+
+import requests
+from bs4 import BeautifulSoup
+from datetime import datetime, timedelta
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import re
+
+This block of code imports the necessary libraries and modules for the program. 
+"requests" is used to make HTTP requests to the web search URL, "BeautifulSoup" is used to parse the HTML content of the search results,
+"datetime" and "timedelta" are used to calculate the date range for the search, "smtplib" is used to send email,
+and "MIMEMultipart" and "MIMEText" are used to create the email message.
+
+Code block #2:
+
+keyword = input("Enter your keyword: ")
+num_days = 30
+
+These lines prompt the user to input the keyword they want to search for and set the number of days to scrape to 30. You can take it as input
+from the user too. Here is the modified code for that:
+
+keyword = input("Enter your keyword: ")
+num_days = int(input("Enter the number of days to scrape: "))
+
+Code block #3:
+
+end_date = datetime.today()
+start_date = end_date - timedelta(days=num_days)
+date_format = "%m/%d/%Y"
+start_date_str = start_date.strftime(date_format)
+end_date_str = end_date.strftime(date_format)
+
+These lines calculate the start and end dates for the search and format the start_date and end_date as strings in the format mm/dd/yyyy.
+The end_date is set to today's date, and the start_date is calculated by subtracting the number of days to scrape from the end_date.
+Then format the start_date and end_date as strings in the format mm/dd/yyyy.
+
+Code block #4:
+
+url = f"https://www.google.com/search?q={keyword}&source=lnt&tbs=cdr%3A1%2Ccd_min%3A{start_date_str}%2Ccd_max%3A{end_date_str}"
+
+This line sets the URL for the Google search results using the "keyword", "start_date_str", and "end_date_str" values in the URL parameters.
+
+Code block #5:
+
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
+}
+response = requests.get(url, headers=headers)
+content = response.content
+
+
+These lines make the HTTP request to the search results URL with a specific user-agent header. The headers parameter is used to
+set the user-agent string to a common web browsers. The response content is then retrieved and stored in content.
+
+Code block #6:
+
+soup = BeautifulSoup(content, "html.parser")
+search_results = soup.find_all("div", class_="g")
+
+First line uses BeautifulSoup to parse the content HTML content and create a BeautifulSoup object named soup. Next line uses the 
+"find_all" method of the BeautifulSoup object to find all of the search result "div" elements with a class of "g". 
+This creates a list of search_results that contains all of the search result elements.
+
+Code block #7:
+
+msg = MIMEMultipart()
+msg["From"] = "sender email"
+msg["To"] = "receiver email"
+msg["Subject"] = f"Search Results for '{keyword}'"
+
+This code block is responsible for creating and setting up the email message that will be sent.
+First, it creates a new instance of the "MIMEMultipart" class, which represents a message that can have multiple parts (e.g. text and attachments).
+Then it sets the "From" and "To" fields of the email message using msg["From"] and msg["To"] respectively. In this example, the sender's 
+email address is set to "sender email" and the recipient's email address is set to "receiver email". Next, it sets the subject line of the email
+using msg["Subject"]. The subject line is set to "Search Results for '{keyword}'", where {keyword} is the value of the keyword variable
+entered by the user earlier. This helps the recipient quickly identify the purpose of the email. The email message is then ready to be sent
+with the appropriate fields set up.
+
+Code block #8:
+
+body = f"Search results for '{keyword}' for the last {num_days} days:\n\n"
+for result in search_results:   
+    title = result.find("h3").get_text()
+   
+    url_regex = re.compile(r"(?P<url>https?://[^\s]+)")
+    url_match = url_regex.search(str(result))
+    if url_match:
+        url = url_match.group("url")
+    else:
+        url = ""
+    
+    body += f"Title: {title}\nURL: {url}\n\n"
+
+This code block extracts the title and URL from each search result and stores them in the body variable. The body variable is a string
+that will later be used as the email message body. Here is how this code block works step by step:
+- The first line of code creates a string that includes the search keyword and the number of days specified by the user.
+- The for loop iterates over each search result and extracts the title and URL.
+- Inside the loop, result.find("h3").get_text() extracts the text content of the h3 tag inside each search result. This text represents
+  the title of the search result.
+- url_regex is a regular expression that matches any URLs in the text content of the search result. url_regex.search(str(result)) searches
+  the text content of the search result for a match to the regular expression, and url_match.group("url") extracts the matched URL if there is one.
+- If there is a URL match, it is stored in the url variable. Otherwise, url is set to an empty string.
+- The last line of the loop adds the title and URL to the body variable, separated by a newline character (\n\n).
+At the end of the loop, body contains all of the search result titles and URLs. These will be included in the email message sent to the user.
+
+Code block #9:
+
+msg.attach(MIMEText(body, "plain"))
+
+with smtplib.SMTP("smtp.gmail.com", 587) as smtp:
+    smtp.starttls()
+    smtp.login("pixtorial101@gmail.com", "ztypmplkwjnepybr")
+    smtp.send_message(msg)
+    print("Email sent successfully!")
+
+This code block sends an email message with the search results to the specified email address.
+- "msg.attach(MIMEText(body, "plain"))" attaches the message body to the email message as plain text.
+- "with smtplib.SMTP("smtp.gmail.com", 587) as smtp:" creates an SMTP (Simple Mail Transfer Protocol) connection with the
+  Gmail SMTP server on port 587.
+- "smtp.starttls()" starts a TLS (Transport Layer Security) encrypted connection.
+- "smtp.login("sender email", "sender email password")" logs in to the SMTP server using the specified email address and password.
+- "smtp.send_message(msg)" sends the email message.
+- "print("Email sent successfully!")" prints a message to the console indicating that the email has been sent successfully.
