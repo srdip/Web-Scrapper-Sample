@@ -39,8 +39,8 @@ search_results = soup.find_all("div", class_="tF2Cxc")
 
 # Create the email message
 msg = MIMEMultipart()
-msg["From"] = "pixtorial101@gmail.com"
-msg["To"] = "shlrn756@gmail.com"
+msg["From"] = "sender email"
+msg["To"] = "receiver email"
 # Add the subject line to the email, including the search keyword
 msg["Subject"] = f"Search Results for '{keyword}'"
 
@@ -67,6 +67,6 @@ msg.attach(MIMEText(body, "plain"))
 # Send the email
 with smtplib.SMTP("smtp.gmail.com", 587) as smtp:
     smtp.starttls()
-    smtp.login("pixtorial101@gmail.com", "ztypmplkwjnepybr")
+    smtp.login("sender email", "sender email password")
     smtp.send_message(msg)
     print("Email sent successfully!")
